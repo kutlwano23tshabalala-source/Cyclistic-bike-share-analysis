@@ -1,0 +1,60 @@
+Query for Total Rides by usertype
+CREATE OR REPLACE TABLE `project-488513.cyclistic.total_rides_by_usertypes` AS 
+SELECT 
+  usertype,
+  COUNT(*) AS total_rides
+FROM 
+  `project-488513.cyclistic.divvy_cleaned`
+GROUP BY 
+  usertype
+
+Query for Average Ride Length
+SELECT 
+  usertype,
+  start_time,
+  end_time,
+  AVG(TIMESTAMP_DIFF(end_time,start_time,MINUTE)) AS avg_ride_length
+FROM
+  `project-488513.cyclistic.divvy_cleaned`
+GROUP BY 
+ start_time,
+ end_time,
+ usertype
+
+Query for Peak Hours:
+CREATE OR REPLACE TABLE `project-488513.cyclistic.peak_hours` AS 
+SELECT
+  usertype,
+  EXTRACT(HOUR FROM start_time) AS hour,
+  COUNT(*) AS rides
+FROM 
+  `project-488513.cyclistic.divvy_cleaned`
+GROUP BY 
+  usertype,
+  hour
+ORDER BY 
+  hour DESC
+
+Query for Rides by day of the week 
+CREATE OR REPLACE TABLE `project-488513.cyclistic.rides_by_week` AS
+SELECT
+  usertype,
+  FORMAT_TIMESTAMP('%A',start_time) AS day,
+  EXTRACT(DAYOFWEEK FROM start_time) AS day_num,
+  AVG(TIMESTAMP_DIFF(end_time, start_time, MINUTE)) AS avg_ride_length
+FROM
+  `project-488513.cyclistic.divvy_cleaned`
+GROUP BY
+  usertype,
+  day,
+  day_num
+ORDER BY
+  CASE 
+    WHEN day_num = 2 THEN 1 -- Monday
+    WHEN day_num = 3 THEN 2
+    WHEN day_num = 4 THEN 3
+    WHEN day_num = 5 THEN 4
+    WHEN day_num = 6 THEN 5
+    WHEN day_num = 7 THEN 6
+    WHEN day_num = 1 THEN 7  -- Sunday
+  END;
